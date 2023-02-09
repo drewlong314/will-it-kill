@@ -1,11 +1,54 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import { useState, useRef, useEffect } from 'react'
 
 export default function Home() {
+    let testObj = {
+        vid1: "/videos/vid-1-0.mp4",
+        vid2: "/videos/vid-1-1.mp4",
+        answer: "yes"
+    }
+
+    const testObj2 = {
+        vid1: "/videos/vid-2-0.mp4",
+        vid2: "/videos/vid-1-1.mp4",
+        answer: "no"
+    }
+
+    const [isQuestionHidden, setIsQuestionHidden] = useState(true)
+    const [isNextHidden, setIsNextHidden] = useState(true)
+    const [currentVideoSet, setCurrentVideoSet] = useState(testObj)
+    const [vidSrc, setVidSrc] = useState("")
+    const [response, setResponse] = useState("")
+    const testVid = useRef(null)
+
+    useEffect(() => {
+        setVidSrc(currentVideoSet.vid1)
+    }, [currentVideoSet])
+
+    const handlePause = (): void => {
+        if (vidSrc === currentVideoSet.vid1 && testVid.current.duration === testVid.current.currentTime) setIsQuestionHidden(false)
+        else if (vidSrc === currentVideoSet.vid2 && testVid.current.duration === testVid.current.currentTime) {
+            if (response === currentVideoSet.answer) setIsNextHidden(false)
+            else if (response != currentVideoSet.answer) console.log('you lost')
+        }
+    }
+
+    const handleResponse = (res: string): void => {
+       setVidSrc(currentVideoSet.vid2)
+       setIsQuestionHidden(true)
+       setResponse(res)
+    }
+
+    const handleNext = (): void => {
+        setCurrentVideoSet(testObj2)
+        setIsNextHidden(true)
+    }
+
+    // TODO: Grab a random video set
+    // TODO: Keep Score
+    // TODO: Decide if the player correctly guessed
+
     return (
         <>
             <Head>
@@ -16,6 +59,16 @@ export default function Home() {
             </Head>
             <main className={styles.main}>
                 <div>Will It Kill?</div>
+                <div className={styles.description} onClick={handlePause}></div>
+                <video src={vidSrc} width={'1000px'} onPause={handlePause} ref={testVid} autoPlay controls muted={true} />
+                <div hidden={isQuestionHidden}>
+                    <div>Will it Kill?</div>
+                    <button onClick={() => handleResponse("yes")}>Yes</button>
+                    <button onClick={() => handleResponse("no")}>No</button>
+                </div>
+                <div hidden={isNextHidden}>
+                    <button onClick={handleNext}>Next</button>
+                </div>
             </main>
         </>
     )
