@@ -59,7 +59,7 @@ export default function Home() {
             </Head>
             <main className={styles.main}>
                 <div>Will It Kill?</div>
-                <div className={styles.description} onClick={handlePause}></div>
+                <div onClick={handlePause}></div>
                 <video src={vidSrc} width={'1000px'} onPause={handlePause} ref={testVid} autoPlay controls muted={true} />
                 <div hidden={isQuestionHidden}>
                     <div>Will it Kill?</div>
