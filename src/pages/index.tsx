@@ -1,6 +1,30 @@
 import Head from 'next/head'
+import clientPromise from '../../lib/mongodb'
 import styles from '@/styles/Home.module.css'
 import { useState, useRef, useEffect } from 'react'
+
+export async function getServerSideProps(context) {
+    try {
+      await clientPromise
+      // `await clientPromise` will use the default database passed in the MONGODB_URI
+      // However you can use another database (e.g. myDatabase) by replacing the `await clientPromise` with the following code:
+      //
+      // `const client = await clientPromise`
+      // `const db = client.db("myDatabase")`
+      //
+      // Then you can execute queries against your database like so:
+      // db.find({}) or any of the MongoDB Node Driver commands
+
+      return {
+        props: { isConnected: true },
+      }
+    } catch (e) {
+      console.error(e)
+      return {
+        props: { isConnected: false },
+      }
+    }
+  }
 
 export default function Home() {
     let testObj = {
@@ -20,6 +44,7 @@ export default function Home() {
     const [currentVideoSet, setCurrentVideoSet] = useState(testObj)
     const [vidSrc, setVidSrc] = useState("")
     const [response, setResponse] = useState("")
+    const [score, setScore] = useState(0)
     const testVid = useRef(null)
 
     useEffect(() => {
@@ -29,7 +54,10 @@ export default function Home() {
     const handlePause = (): void => {
         if (vidSrc === currentVideoSet.vid1 && testVid.current.duration === testVid.current.currentTime) setIsQuestionHidden(false)
         else if (vidSrc === currentVideoSet.vid2 && testVid.current.duration === testVid.current.currentTime) {
-            if (response === currentVideoSet.answer) setIsNextHidden(false)
+            if (response === currentVideoSet.answer) {
+                setIsNextHidden(false)
+                setScore(score + 1)
+            }
             else if (response != currentVideoSet.answer) console.log('you lost')
         }
     }
@@ -59,6 +87,7 @@ export default function Home() {
             </Head>
             <main className={styles.main}>
                 <div>Will It Kill?</div>
+                <div>Score: {score}</div>
                 <div onClick={handlePause}></div>
                 <video src={vidSrc} width={'1000px'} onPause={handlePause} ref={testVid} autoPlay controls muted={true} />
                 <div hidden={isQuestionHidden}>
