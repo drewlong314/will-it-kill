@@ -59,7 +59,7 @@ export default function Home() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ _id: "63e81175dcdab266383a8154", response: res })
+                body: JSON.stringify({ _id: currentVideoSet._id, response: res })
             })
         }
     }
